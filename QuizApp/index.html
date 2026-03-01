@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intellect Quiz | Professional Assessment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Intellect<span>.</span></h1>
+            <p id="quiz-title">General Knowledge Assessment</p>
+        </header>
+
+        <main id="quiz-container">
+            <div id="setup-screen" class="card">
+                <h2>Ready to Start?</h2>
+                <p>Test your knowledge with our curated set of professional questions.</p>
+                <button id="start-btn" class="btn primary">Begin Assessment</button>
+            </div>
+
+            <div id="question-screen" class="card hidden">
+                <div class="quiz-header">
+                    <span id="question-number">Question 1 of 5</span>
+                    <div class="progress-bar">
+                        <div id="progress-fill"></div>
+                    </div>
+                </div>
+                <h2 id="question-text">Loading question...</h2>
+                <div id="options-container" class="options-grid"></div>
+                <div class="quiz-footer">
+                    <button id="next-btn" class="btn primary hidden">Next Question</button>
+                </div>
+            </div>
+
+            <div id="result-screen" class="card hidden">
+                <h2>Assessment Complete</h2>
+                <div class="score-display">
+                    <span id="final-score">0</span>
+                    <span class="score-total">/ 5</span>
+                </div>
+                <p id="result-feedback">Great job on completing the quiz!</p>
+                <button id="restart-btn" class="btn secondary">Restart Assessment</button>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
