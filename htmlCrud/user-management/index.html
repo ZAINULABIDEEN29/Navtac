@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management System | Navtac</title>
+    <meta name="description" content="A premium User Management System built with Vanilla JS and Tailwind CSS.">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            min-height: 100vh;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #3b82f6;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .animate-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">User Management</h1>
+                <p class="text-slate-500 mt-1">Manage institutional users and their credentials.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="searchInput" placeholder="Search users..." 
+                        class="pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none w-full md:w-64 glass transition-all">
+                </div>
+                <button id="addUserBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all shadow-lg shadow-blue-200">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add User</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats/Summary Grid (Extra Polish) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="glass p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                <div class="bg-blue-100 text-blue-600 w-12 h-12 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-users text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-slate-500 text-sm font-medium">Total Users</p>
+                    <h3 id="totalUsersCount" class="text-2xl font-bold text-slate-800">0</h3>
+                </div>
+            </div>
+            <div class="glass p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                <div class="bg-emerald-100 text-emerald-600 w-12 h-12 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-envelope text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-slate-500 text-sm font-medium">Verified Emails</p>
+                    <h3 id="verifiedEmailsCount" class="text-2xl font-bold text-slate-800">0</h3>
+                </div>
+            </div>
+            <div class="glass p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                <div class="bg-amber-100 text-amber-600 w-12 h-12 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-circle-check text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-slate-500 text-sm font-medium">Active Status</p>
+                    <h3 class="text-2xl font-bold text-slate-800">98%</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="glass rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50/50 border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">User Details</th>
+                            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Phone</th>
+                            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody" class="divide-y divide-slate-100">
+                        <!-- Users will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loadingIndicator" class="hidden flex flex-col items-center justify-center py-20 bg-white/20">
+                <div class="loading-spinner mb-4"></div>
+                <p class="text-slate-500 font-medium">Syncing data...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20 bg-white/20">
+                <i class="fa-solid fa-user-slash text-5xl text-slate-200 mb-4"></i>
+                <h3 class="text-lg font-semibold text-slate-700">No users found</h3>
+                <p class="text-slate-500">Try adjusting your search or add a new user.</p>
+            </div>
+        </div>
+
+        <footer class="mt-8 text-center text-slate-400 text-sm">
+            <p>&copy; 2026 Navtac Systems. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- User Modal (Add/Edit) -->
+    <div id="userModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="modal-overlay absolute inset-0"></div>
+        <div class="glass bg-white rounded-3xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden animate-in">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <h2 id="modalTitle" class="text-xl font-bold text-slate-800">Add New User</h2>
+                <button id="closeModalBtn" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <form id="userForm" class="p-6 space-y-4">
+                <input type="hidden" id="userIdInput">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label for="firstName" class="text-sm font-semibold text-slate-700">First Name</label>
+                        <input type="text" id="firstName" name="firstName" required placeholder="e.g. Ali"
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="lastName" class="text-sm font-semibold text-slate-700">Last Name</label>
+                        <input type="text" id="lastName" name="lastName" required placeholder="e.g. Khan"
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label for="email" class="text-sm font-semibold text-slate-700">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="e.g. ali@example.com"
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                </div>
+                <div class="space-y-2">
+                    <label for="phone" class="text-sm font-semibold text-slate-700">Phone Number</label>
+                    <input type="tel" id="userPhone" name="phone" required placeholder="e.g. +1 (555) 000-0000"
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                </div>
+                <div class="pt-4 flex gap-3">
+                    <button type="button" id="cancelBtn" class="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-all">
+                        Cancel
+                    </button>
+                    <button type="submit" id="saveBtn" class="flex-1 px-4 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-8 right-8 z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border">
+        <div id="toastIcon" class="w-8 h-8 rounded-full flex items-center justify-center text-white"></div>
+        <div>
+            <p id="toastTitle" class="font-bold text-slate-800 leading-none mb-1"></p>
+            <p id="toastMessage" class="text-sm text-slate-500 leading-none"></p>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
