@@ -18,12 +18,13 @@ const productSchema = new Schema({
         type:String,
         required:[true, "Category is required"],
         trim:true,
-        enum:["Electronics","Clothing","Books","Home & Kitchen","Sports & Outdoors","Beauty & Personal Care","Toys & Games","Automotive","Other"],
+        enum:["Smartphones","Laptops","Fragrances","Skincare","Groceries","Home Decoration","Other"],
         default:"Other"
     },
     price:{
         type:Number,
         required:[true, "Price is required"],
+        default:0
     },
     brand:{
         type:String,

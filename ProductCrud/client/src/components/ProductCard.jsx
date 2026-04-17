@@ -1,14 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Edit2, Trash2, Eye } from 'lucide-react';
-import { useProduct } from '../hooks/useProduct';
+import { useDeleteProduct } from '../hooks/useProducts';
+import { getImageUrl } from '../utils/getImageUrl';
 
 const ProductCard = ({ product }) => {
-  const { deleteProduct } = useProduct();
+  const deleteProduct = useDeleteProduct();
+
 
   const handleDelete = () => {
     if (window.confirm(`Are you sure you want to delete "${product.title}"?`)) {
-      deleteProduct(product.id);
+      deleteProduct.mutate(product._id);
     }
   };
 
@@ -16,7 +18,7 @@ const ProductCard = ({ product }) => {
     <div className="glass product-card fade-in">
       <div className="product-card__image-container">
         <img 
-          src={product.thumbnail} 
+          src={getImageUrl(product.image)} 
           alt={product.title} 
           className="product-card__image"
         />
@@ -32,10 +34,10 @@ const ProductCard = ({ product }) => {
         </p>
         
         <div className="product-card__actions">
-          <Link to={`/product/${product.id}`} className="btn btn-outline" style={{ flex: 1, padding: '8px' }}>
+          <Link to={`/product/${product._id}`} className="btn btn-outline" style={{ flex: 1, padding: '8px' }}>
             <Eye size={18} />
           </Link>
-          <Link to={`/edit/${product.id}`} className="btn btn-primary" style={{ flex: 1, padding: '8px' }}>
+          <Link to={`/edit/${product._id}`} className="btn btn-primary" style={{ flex: 1, padding: '8px' }}>
             <Edit2 size={18} />
           </Link>
           <button onClick={handleDelete} className="btn btn-danger" style={{ flex: 1, padding: '8px' }}>

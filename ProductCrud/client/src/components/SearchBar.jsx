@@ -1,26 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Search } from 'lucide-react';
-import { useProduct } from '../hooks/useProduct';
 
-const SearchBar = () => {
-  const { searchProducts, searchTerm } = useProduct();
-  const [localTerm, setLocalTerm] = useState(searchTerm);
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      searchProducts(localTerm);
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [localTerm]);
+const SearchBar = ({ searchTerm, onSearchChange }) => {
 
   return (
     <div className="search-container fade-in">
       <input
         type="text"
         placeholder="Search products by title..."
-        value={localTerm}
-        onChange={(e) => setLocalTerm(e.target.value)}
+        value={searchTerm}
+        onChange={(e) => onSearchChange(e.target.value)}
         style={{ paddingLeft: '54px' }}
       />
       <Search 

@@ -1,32 +1,38 @@
 import { apiClient } from './apiClient';
-import { API_ENDPOINTS } from '../constants/api';
 
 export const productService = {
   getAllProducts: async () => {
-    const data = await apiClient.get(API_ENDPOINTS.PRODUCTS);
+    const data = await apiClient.get("/products");
     return data.products;
   },
 
   getProductById: async (id) => {
-    return apiClient.get(`${API_ENDPOINTS.PRODUCTS}/${id}`);
+    const data = await apiClient.get(`/products/${id}`);
+    return data.data;
   },
 
   searchProducts: async (query) => {
-    const data = await apiClient.get(`${API_ENDPOINTS.SEARCH}?q=${query}`);
+    const data = await apiClient.get(`/products?q=${encodeURIComponent(query)}`);
     return data.products;
   },
 
   createProduct: async (productData) => {
-    return apiClient.post(API_ENDPOINTS.ADD, productData);
+    const isFormData = productData instanceof FormData;
+    return apiClient.post("/products", productData, {
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {}
+    });
   },
 
   updateProduct: async (id, productData) => {
-    // DummyJSON might not like updating non-existent IDs (like those added locally)
-    // but we simulate the production behavior here.
-    return apiClient.put(`${API_ENDPOINTS.PRODUCTS}/${id}`, productData);
+    console.log(id,"id");
+    const isFormData = productData instanceof FormData;
+    return apiClient.put(`/products/${id}`, productData, {
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {}
+    });
   },
 
   deleteProduct: async (id) => {
-    return apiClient.delete(`${API_ENDPOINTS.PRODUCTS}/${id}`);
+    const data = await apiClient.delete(`/products/${id}`);
+    return data.products;
   },
 };

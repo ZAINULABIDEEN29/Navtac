@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ProductProvider } from './context/ProductContext';
+
 import { ToastProvider } from './context/ToastContext';
 import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
@@ -21,19 +21,17 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
-        <ProductProvider>
-          <Router>
-            <Navbar />
-            <main className="container fade-in">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/product/:id" element={<ProductDetails />} />
-                <Route path="/add" element={<AddEditProduct />} />
-                <Route path="/edit/:id" element={<AddEditProduct />} />
-              </Routes>
-            </main>
-          </Router>
-        </ProductProvider>
+        <Router>
+          <Navbar />
+          <main className="container fade-in">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/product/:_id" element={<ProductDetails />} />
+              <Route path="/add" element={<AddEditProduct />} />
+              <Route path="/edit/:_id" element={<AddEditProduct />} />
+            </Routes>
+          </main>
+        </Router>
       </ToastProvider>
     </QueryClientProvider>
   );

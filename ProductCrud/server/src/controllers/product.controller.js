@@ -7,9 +7,15 @@ import Product from "../models/product.model.js";
 //  { id: 3, name: "Product 3", price: 300 },
 // ]
 
- const getAllProducts = asyncHandler( async  (_req,res)=>{
+ const getAllProducts = asyncHandler( async  (req,res)=>{
+   const { q } = req.query;
+   let queryFilter = {};
+   
+   if (q) {
+     queryFilter.title = { $regex: q, $options: "i" };
+   }
 
-   const products =  await Product.find();
+   const products =  await Product.find(queryFilter);
    if(!products){
       return res.status(400).json({
          success:false,
@@ -19,7 +25,7 @@ import Product from "../models/product.model.js";
    res.json({
     success:true,
     message:"All products",
-    data:products
+    products:products
    })
 })
 
@@ -49,13 +55,15 @@ import Product from "../models/product.model.js";
 
 const createProduct = asyncHandler(async (req, res)=>{
    const {title, description,category,price,brand,sku,rating,stock} = req.body;
-   const image = req.file?.path;
+   const image = req.file ? req.file.filename : (req.body.image || req.body.thumbnail);
+
    if(!title || !description || !category || !price || !brand || !sku || !rating || !stock){
       return res.status(400).json({
          success:false,
          message:"Please provide all the fields"
       })
    }
+   
    const product = new Product({
       title,
       description,
@@ -65,8 +73,8 @@ const createProduct = asyncHandler(async (req, res)=>{
       sku,
       rating,
       stock,
-      image
-      
+      image,
+      owner: req.user ? req.user._id : undefined   
    })
    await product.save({validateBeforeSave:true})
    // const product = {
@@ -87,33 +95,31 @@ const createProduct = asyncHandler(async (req, res)=>{
 const updateProduct = asyncHandler(async  (req,res)=>{
    const {id} = req.params;
    const {title, description,category,price,brand,sku,rating,stock} = req.body;
-   const image = req.file?.path;
+   const image = req.file ? req.file.filename : (req.body.image || req.body.thumbnail);
+   
    if(!id){
       return res.status(400).json({
          success:false,
          message:"Please provide product id"
       })
    }
-    if(!title || !description || !category || !price || !brand || !sku || !rating || !stock){
-      return res.status(400).json({
-         success:false,
-         message:"Please provide all the fields"
-      })
+
+   const updateData = {
+      title, 
+      description,
+      category,
+      price,
+      brand,
+      sku,
+      rating,
+      stock
+   };
+   
+   if (image) {
+      updateData.image = image;
    }
 
-   const product = await Product.findByIdAndUpdate(id,
-      {
-         title, 
-         description,
-         category,
-         price,
-         brand,
-         sku,
-         rating,
-         stock,
-         image
-      },
-      {new:true,runValidators:true})
+   const product = await Product.findByIdAndUpdate(id, updateData, {new:true,runValidators:true})
    // const product = products.find((product)=> product.id === Number(id))
    if(!product){
       return res.status(400).json({
@@ -150,7 +156,7 @@ const deleteProduct = asyncHandler( async (req, res)=>{
    res.status(200).json({
       success:true,
       message:"Product deleted successfully",
-      data:product
+      products:product
    })
 }) 
 

@@ -1,28 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useProduct } from '../hooks/useProduct';
 import { ArrowLeft, Star, Tag, Box, Trash2, Edit2 } from 'lucide-react';
 import Loading from '../components/common/Loading';
+import { productService } from '../services/productService';
+import { getImageUrl } from '../utils/getImageUrl';
 
 const ProductDetails = () => {
-  const { id } = useParams();
+  const { _id } = useParams();
   const navigate = useNavigate();
-  const { getProductById, deleteProduct } = useProduct();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDetail = async () => {
-      const data = await getProductById(id);
+      const data = await productService.getProductById(_id);
       setProduct(data);
       setLoading(false);
     };
     fetchDetail();
-  }, [id, getProductById]);
+  }, [_id]);
 
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-      await deleteProduct(id);
+      await productService.deleteProduct(_id);
       navigate('/');
     }
   };
@@ -52,7 +52,7 @@ const ProductDetails = () => {
       <div className="glass detail-card">
         <div className="detail-image-container">
           <img 
-            src={product.images?.[0] || product.thumbnail} 
+            src={getImageUrl(product.image)}
             alt={product.title} 
             className="detail-image"
           />
@@ -97,16 +97,7 @@ const ProductDetails = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', marginTop: 'auto', paddingTop: '1rem' }}>
-            <Link to={`/edit/${product.id}`} className="btn btn-primary" style={{ flex: 1, padding: '16px' }}>
-              <Edit2 size={18} />
-              Edit Specification
-            </Link>
-            <button onClick={handleDelete} className="btn btn-danger" style={{ flex: 1, padding: '16px' }}>
-              <Trash2 size={18} />
-              Remove Item
-            </button>
-          </div>
+       
         </div>
       </div>
     </div>

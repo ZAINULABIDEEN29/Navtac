@@ -1,15 +1,19 @@
-import { useProduct } from '../hooks/useProduct';
+import React, { useState } from 'react';
 import ProductCard from '../components/ProductCard';
 import SearchBar from '../components/SearchBar';
 import Loading from '../components/common/Loading';
-import { useEffect } from 'react';
+import { useGetProducts } from '../hooks/useProducts';
+import { useDebounce } from '../hooks/useDebounce';
 
 const Home = () => {
-  const { products, loading, error } = useProduct();
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedTerm = useDebounce(searchTerm, 500);
+  
+  const { data:products = [], isLoading:loading, error } = useGetProducts(debouncedTerm);
 
   if (error) return (
     <div className="glass" style={{ textAlign: 'center', padding: '3rem', margin: '2rem 0', borderRadius: '20px' }}>
-      <h2 style={{ color: 'var(--danger)' }}>{error}</h2>
+      <h2 style={{ color: 'var(--danger)' }}>{error.message || "An error occurred"}</h2>
     </div>
   );
 
@@ -22,7 +26,7 @@ const Home = () => {
         <p>Manage and explore your inventory with ease.</p>
       </header>
 
-      <SearchBar />
+      <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 
       {loading ? (
         <Loading />
@@ -30,7 +34,7 @@ const Home = () => {
         <div className="product-grid">
           {products.length > 0 ? (
             products.map(product => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product._id} product={product} />
             ))
           ) : (
             <div className="glass" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '3rem', borderRadius: '20px' }}>

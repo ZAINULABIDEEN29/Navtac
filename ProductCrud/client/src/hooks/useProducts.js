@@ -1,27 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { productService } from '../services/productService';
 
-export const useProducts = () => {
+export const useGetProducts = (query = '') => {
   return useQuery({
-    queryKey: ['products'],
-    queryFn: productService.getAllProducts,
+    queryKey: ['products', query],
+    queryFn: () => query ? productService.searchProducts(query) : productService.getAllProducts(),
     staleTime: 1000 * 60 * 5,
   });
 };
 
-export const useProduct = (id) => {
+export const useGetSingleProduct = (id) => {
   return useQuery({
     queryKey: ['product', id],
     queryFn: () => productService.getProductById(id),
     enabled: !!id,
-  });
-};
-
-export const useSearchProducts = (query) => {
-  return useQuery({
-    queryKey: ['products', 'search', query],
-    queryFn: () => productService.searchProducts(query),
-    enabled: !!query,
   });
 };
 
@@ -39,9 +31,14 @@ export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }) => productService.updateProduct(id, data),
-    onSuccess: (updatedProduct) => {
+    onSuccess: (res, variables) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      queryClient.setQueryData(['product', updatedProduct.id.toString()], updatedProduct);
+      queryClient.invalidateQueries({ queryKey: ['product', variables.id] });
+      
+      const updatedProduct = res?.data;
+      if (updatedProduct?._id) {
+        queryClient.setQueryData(['product', updatedProduct._id.toString()], updatedProduct);
+      }
     },
   });
 };
