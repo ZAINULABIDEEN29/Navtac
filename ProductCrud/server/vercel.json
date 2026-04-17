@@ -1,0 +1,17 @@
+{
+    "builds": [
+        {
+            "src": "src/app.js",
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": ["dist/**"]
+            }
+        }
+    ],
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/src/app.js"
+        }
+    ]
+}
