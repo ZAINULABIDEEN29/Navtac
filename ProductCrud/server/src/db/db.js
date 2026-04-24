@@ -7,7 +7,7 @@ const connectDB = async () =>{
         console.log("Mongodb connected :", connection.connection.host)
     } catch (error) {
         console.log("Mongodb connection error :", error)
-        process.exit(1);
+        // process.exit(1); removed to prevent Vercel 502/500 hard crashes
     }
 }
 
