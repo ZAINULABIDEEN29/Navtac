@@ -21,7 +21,8 @@ app.use(cors({
 }));
 app.use(express.json({limit:"16kb"}))
 app.use(express.urlencoded({extended:true,limit:"16kb"}))
-app.use("/uploads",express.static(path.join(process.cwd(),"public/uploads")))
+const isVercel = process.env.VERCEL === "1";
+app.use("/uploads", express.static(isVercel ? "/tmp" : path.join(process.cwd(), "public/uploads")));
 app.use(cookieParser())
 app.use(morgan("dev"))
 
