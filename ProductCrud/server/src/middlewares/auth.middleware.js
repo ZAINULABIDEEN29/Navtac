@@ -11,7 +11,7 @@ const authMiddleware = asyncHandler(
         if(!authToken){
             return res.status(400).json({
                 success:false,
-                message:"Please Provide token"
+                message:"UnAuthorized please login first"
             })
         }
         const decodedToken = jwt.verify(authToken,process.env.JWT_SECRET)

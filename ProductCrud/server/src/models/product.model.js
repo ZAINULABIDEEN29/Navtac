@@ -36,7 +36,6 @@ const productSchema = new Schema({
         type:String,
         required:[true,"Sku is required"],
         trim:true,
-        unique:true
     },
     rating:{
         type:Number,

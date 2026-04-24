@@ -6,29 +6,29 @@ const router = express.Router();
 
 router.route("/").
     get(
-        // authMiddleware,
+        authMiddleware,
         getAllProducts
     )
 router.route("/:id").
     get(
-        // authMiddleware,
+        authMiddleware,
         getSingleProduct
     )
 router.route("/").
     post(
-        // authMiddleware,
+        authMiddleware,
         upload.single("image"),
         createProduct
     )
 router.route("/:id").
     put(
-        // authMiddleware,
+        authMiddleware,
         upload.single("image"),
         updateProduct
     )
 router.route("/:id").
     delete(
-      //  authMiddleware,
+       authMiddleware,
         deleteProduct
     )
 
