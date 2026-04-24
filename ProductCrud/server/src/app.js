@@ -38,18 +38,11 @@ app.get("/",(req,res)=>{
     })
 })
 
-// Error-handling middleware so it returns JSON and preserves CORS headers
-app.use((err, req, res, next) => {
-    console.error("Express Global Error:", err.stack);
-    res.status(500).json({
-        success: false,
-        message: err.message || "Internal Server Error",
-    });
-});
+
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT,()=>{
     console.log(`Server is running on port ${PORT}`)
 });
 
-export default app;
+// export default app;

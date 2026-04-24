@@ -1,19 +1,28 @@
 import { apiClient } from './apiClient';
 
 export const productService = {
-  getAllProducts: async () => {
-    const data = await apiClient.get("/products");
-    return data.products;
+  getAllProducts: async (page = 1, limit = 10, q = "", category = "") => {
+    try {
+      let url = `/products?page=${page}&limit=${limit}`;
+      if (q) {
+        url += `&q=${encodeURIComponent(q)}`;
+      }
+      if (category) {
+        url += `&category=${encodeURIComponent(category)}`;
+      }
+      const data = await apiClient.get(url);
+      return data;
+    } catch (error) {
+      if (error.message === "No products found matching your criteria") {
+        return { data: [], pagination: { totalPages: 0, currentPage: 1, hasNextPage: false, hasPrevPage: false } };
+      }
+      throw error;
+    }
   },
 
   getProductById: async (id) => {
     const data = await apiClient.get(`/products/${id}`);
     return data.data;
-  },
-
-  searchProducts: async (query) => {
-    const data = await apiClient.get(`/products?q=${encodeURIComponent(query)}`);
-    return data.products;
   },
 
   createProduct: async (productData) => {
@@ -24,7 +33,6 @@ export const productService = {
   },
 
   updateProduct: async (id, productData) => {
-    console.log(id,"id");
     const isFormData = productData instanceof FormData;
     return apiClient.put(`/products/${id}`, productData, {
       headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {}

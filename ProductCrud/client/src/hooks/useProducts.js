@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { productService } from '../services/productService';
 
-export const useGetProducts = (query = '') => {
+export const useGetProducts = ({ query = '', page = 1, limit = 10, category = '' } = {}) => {
   return useQuery({
-    queryKey: ['products', query],
-    queryFn: () => query ? productService.searchProducts(query) : productService.getAllProducts(),
+    queryKey: ['products', query, page, limit, category],
+    queryFn: () => productService.getAllProducts(page, limit, query, category),
     staleTime: 1000 * 60 * 5,
   });
 };

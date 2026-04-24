@@ -7,27 +7,56 @@ import Product from "../models/product.model.js";
 //  { id: 3, name: "Product 3", price: 300 },
 // ]
 
- const getAllProducts = asyncHandler( async  (req,res)=>{
-   const { q } = req.query;
+const getAllProducts = asyncHandler(async (req, res) => {
+   // 1. Destructure query params with defaults for pagination
+   const { q, page = 1, limit = 10, category } = req.query;
    let queryFilter = {};
    
+   // 2. Build the search filter
    if (q) {
      queryFilter.title = { $regex: q, $options: "i" };
    }
-
-   const products =  await Product.find(queryFilter);
-   if(!products){
-      return res.status(400).json({
-         success:false,
-         message:"Products not found"
-      })
+   if (category) {
+     queryFilter.category = category;
    }
-   res.json({
-    success:true,
-    message:"All products",
-    products:products
-   })
-})
+
+   // 3. Calculate pagination math
+   const pageNum = parseInt(page, 10);
+   const limitNum = parseInt(limit, 10);
+   const skip = (pageNum - 1) * limitNum;
+
+   // 4. Run queries in parallel: fetch data AND get the total count for metadata
+   // Notice we pass queryFilter to countDocuments so the pagination matches the search!
+   const [products, totalDocuments] = await Promise.all([
+     Product.find(queryFilter)
+       .skip(skip)
+       .limit(limitNum)
+       .lean(), // lean() makes read-queries faster
+     Product.countDocuments(queryFilter)
+   ]);
+
+   // 5. Correctly check for empty results using .length
+   if (products.length === 0) {
+      return res.status(404).json({ // 404 is better for "Not Found"
+         success: false,
+         message: "No products found matching your criteria"
+      });
+   }
+
+   // 6. Return standard paginated response
+   res.status(200).json({
+    success: true,
+    message: "Products retrieved successfully",
+    data: products,
+    pagination: {
+        currentPage: pageNum,
+        totalPages: Math.ceil(totalDocuments / limitNum),
+        totalItems: totalDocuments,
+        hasNextPage: pageNum * limitNum < totalDocuments,
+        hasPrevPage: pageNum > 1
+    }
+   });
+});
 
  const getSingleProduct = asyncHandler( async  (req, res)=>{
    const {id} = req.params;
@@ -159,6 +188,7 @@ const deleteProduct = asyncHandler( async (req, res)=>{
       products:product
    })
 }) 
+
 
 export {
    getAllProducts,
