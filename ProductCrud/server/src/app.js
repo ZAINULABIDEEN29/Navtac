@@ -29,6 +29,32 @@ app.use(morgan("dev"))
 
 app.use("/api/v1/auth",authRouter)
 app.use("/api/v1/products",productsRouter)
+app.use((err, req,res,next)=>{
+    console.log("Error",err)
+    if(err.code === 11000){
+        return res.status(400).json({
+            success:false,
+            message:"User already exists"
+        })
+    }
+    if(err.name === "CastError"){
+        return res.status(400).json({
+            success:false,
+            message:"Invalid Id"
+        })
+    }
+    if(err.name === "ValidationError"){
+        return res.status(400).json({
+            success:false,
+            message:err.message
+        })
+    }
+    
+    res.status(500).json({
+        success:false,
+        message:err.message
+    })
+})
 
 
 app.get("/",(req,res)=>{

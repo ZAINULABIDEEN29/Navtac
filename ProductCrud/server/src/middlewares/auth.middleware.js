@@ -9,7 +9,7 @@ const authMiddleware = asyncHandler(
         const authToken = req.cookies.token
 
         if(!authToken){
-            return res.status(400).json({
+            return res.status(401).json({
                 success:false,
                 message:"UnAuthorized please login first"
             })
@@ -18,7 +18,7 @@ const authMiddleware = asyncHandler(
         const user = await User.findById(decodedToken.id)
         
         if(!user){
-            return res.status(400).json({
+            return res.status(401).json({
                 success:false,
                 message:"Unauthorized"
             })
