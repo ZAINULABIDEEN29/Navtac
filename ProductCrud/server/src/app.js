@@ -10,6 +10,7 @@ import connectDB from "./db/db.js"
 import path from "path"
 
 const app = express();
+app.set('trust proxy', 1);
 connectDB();
 
 app.use(cors({
